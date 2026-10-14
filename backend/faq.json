@@ -1,0 +1,18 @@
+{
+  "company": "ShopEase",
+  "faqs": [
+    {"category": "Orders", "q": "Where is my order? How do I track it?", "a": "Ask the customer for their order id (format SE1234). Use ORDER DATA to give status, carrier, tracking number and expected delivery."},
+    {"category": "Orders", "q": "Can I cancel my order?", "a": "Orders can be cancelled free of charge until they ship. Go to My Orders, select the order, then Cancel. After shipping, refuse delivery or start a return."},
+    {"category": "Payments", "q": "My payment failed but money was deducted", "a": "The amount is auto-refunded to the source within 5-7 working days. The customer can retry with UPI or another card."},
+    {"category": "Payments", "q": "I was charged twice", "a": "Duplicate charges are reversed automatically within 5-7 working days. If still pending after that, the billing team will help."},
+    {"category": "Returns & refunds", "q": "How do I return an item?", "a": "Items can be returned within 10 days of delivery if unused and in original packaging. Go to My Orders, tap Return item, choose a reason and schedule pickup."},
+    {"category": "Returns & refunds", "q": "When will I get my refund?", "a": "Refunds are issued 2-3 working days after we receive the item and reach the bank in 5-7 working days. Wallet refunds are instant."},
+    {"category": "Account", "q": "I forgot my password", "a": "Tap Login, then Forgot password, enter the registered email or phone and use the OTP (valid 10 minutes)."},
+    {"category": "Account", "q": "How do I change my address?", "a": "Go to Account, then Addresses. To change the address on a placed order, cancel it before shipping and reorder."},
+    {"category": "Product info", "q": "Is this item in stock? Warranty?", "a": "Stock and specifications are on each product page. Out-of-stock items have a Notify me button. Most electronics have a 1-year manufacturer warranty."},
+    {"category": "Technical issues", "q": "The app crashes or I cannot log in", "a": "Update the app, clear cache or reinstall, check internet. If it still fails, ask for the device model and the error message."},
+    {"category": "General", "q": "Working hours and contact", "a": "The assistant is available 24/7. Human agents work 9 AM to 9 PM IST, Monday to Saturday, at support@shopease.example or 1800-000-000."},
+     {"category": "General", "q": "How do I place an order?", "a": "Search for the product, tap Add to cart, then Checkout. Choose the delivery address and payment method, and confirm. An order id like SE1234 is shown and emailed after payment."},
+    {"category": "Payments", "q": "What payment methods do you accept?", "a": "We accept UPI, debit and credit cards, net banking, wallets and cash on delivery for eligible orders."}
+  ]
+}

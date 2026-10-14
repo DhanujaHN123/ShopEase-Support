@@ -1,0 +1,20 @@
+# Python
+__pycache__/
+*.py[cod]
+backend/.venv/
+backend/venv/
+
+# Environment secrets
+.env
+.env.*
+!.env.example
+backend/.env
+backend/.env.*
+
+# React
+chatbot-ui/node_modules/
+chatbot-ui/dist/
+
+# Editor
+.vscode/
+.DS_Store
