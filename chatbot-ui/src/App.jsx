@@ -42,7 +42,7 @@ export default function App() {
     setLoading(true);
     try {
       const r = await sendChat(text, lang);
-      addMessage({ who: "bot", text: r.reply, agent: human || r.escalate });
+      addMessage({ who: "bot", text: r.reply, agent: human || r.escalate, serverId: r.message_id });
       if (r.escalate) setHuman(true);
     } catch {
       addMessage({ who: "bot", text: "Sorry, I can't reach the support server right now. Please try again." });
@@ -89,7 +89,8 @@ export default function App() {
 
   function handleFeedback(id, value) {
     setMessages((prev) => prev.map((m) => (m.id === id ? { ...m, vote: value } : m)));
-    sendFeedback(id, value).catch(() => {});
+    const message = messages.find((m) => m.id === id);
+    if (message?.serverId) sendFeedback(message.serverId, value).catch(() => {});
   }
 
   async function backToBot() {

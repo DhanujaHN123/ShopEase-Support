@@ -3,6 +3,9 @@ __pycache__/
 *.py[cod]
 backend/.venv/
 backend/venv/
+backend/*.db
+backend/*.db-shm
+backend/*.db-wal
 
 # Environment secrets
 .env
@@ -10,6 +13,7 @@ backend/venv/
 !.env.example
 backend/.env
 backend/.env.*
+!backend/.env.example
 
 # React
 chatbot-ui/node_modules/
