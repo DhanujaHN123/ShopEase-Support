@@ -39,7 +39,19 @@ ORDERS = {
     "SE1002": {"status": "Delivered", "carrier": "Delhivery", "tracking": "DL4410", "delivered_on": "28 Sep 2026"},
     "SE1003": {"status": "Processing", "expected_delivery": "6 Oct 2026"},
 }
-LANG_NAMES = {"en-IN": "English", "hi-IN": "Hindi", "kn-IN": "Kannada", "ta-IN": "Tamil"}
+
+LANG_NAMES = {
+    "en-IN": "English",
+    "hi-IN": "Hindi",
+    "kn-IN": "Kannada",
+    "ta-IN": "Tamil",
+    "en": "English",
+    "hi": "Hindi",
+    "kn": "Kannada",
+    "ta": "Tamil",
+    "Kannada": "Kannada"
+}
+
 MODEL_COOLDOWN: dict[str, float] = {}
 
 
@@ -116,7 +128,15 @@ def system_prompt(language: str, order_info: str) -> str:
     language_name = LANG_NAMES.get(language, "English")
     return f"""You are the customer support assistant for {FAQ['company']}.
 Use only the FAQ and order data below. Never invent policies, prices, or order details.
-Reply in the customer's language; if unclear use {language_name}. Keep replies short and polite.
+
+IMPORTANT LANGUAGE RULE:
+Reply entirely in {language_name}.
+If {language_name} is Kannada, write the reply in natural Kannada
+using Kannada script (ಕನ್ನಡ). Do not reply in English unless
+the customer explicitly requests English.
+If the customer selects Hindi or Tamil, reply in that language.
+Keep replies short and polite.
+
 Escalate only for a human request, anger/frustration, fraud, legal action, safety issue, or repeated inability to help.
 When uncertain, say so and offer a human agent. Return JSON only with keys reply, intent, category, sentiment, escalate.
 FAQ:\n{faq}\nORDER DATA:\n{order_info}"""
@@ -157,24 +177,61 @@ def fallback_answer(text: str, order_info: str) -> dict:
     return {"reply": "I’m not sure about that. I can help with orders, payments, returns, and account questions, or connect you with an agent.", "intent": "unknown", "category": "Unknown", "sentiment": "neutral", "escalate": False}
 
 
+
 def generate_chat(text: str, history: list[dict], language: str, order_info: str) -> dict:
     if client is None:
         return fallback_answer(text, order_info)
-    contents = [{"role": "model" if turn["role"] == "assistant" else "user", "parts": [turn["content"]]} for turn in history]
-    contents.append({"role": "user", "parts": [text]})
+
+    # Build conversation history using the Google GenAI SDK's
+    # supported Content and Part objects.
+    contents = []
+
+    for turn in history:
+        role = "model" if turn["role"] == "assistant" else "user"
+        contents.append(
+            types.Content(
+                role=role,
+                parts=[types.Part.from_text(text=turn["content"])]
+            )
+        )
+
+    contents.append(
+        types.Content(
+            role="user",
+            parts=[types.Part.from_text(text=text)]
+        )
+    )
+
     now = time.time()
     try_models = [MODEL] if MODEL_COOLDOWN.get(MODEL, 0) <= now else []
-    try_models += [name for name in ("gemini-3.5-flash-lite",) if name != MODEL and MODEL_COOLDOWN.get(name, 0) <= now]
+    try_models += [
+        name for name in ("gemini-3.5-flash-lite",)
+        if name != MODEL and MODEL_COOLDOWN.get(name, 0) <= now
+    ]
+
     for model in try_models:
         try:
-            response = client.models.generate_content(model=model, contents=contents,
-                config=types.GenerateContentConfig(system_instruction=system_prompt(language, order_info), response_mime_type="application/json", max_output_tokens=800))
+            response = client.models.generate_content(
+                model=model,
+                contents=contents,
+                config=types.GenerateContentConfig(
+                    system_instruction=system_prompt(language, order_info),
+                    response_mime_type="application/json",
+                    max_output_tokens=800
+                )
+            )
             return parse_model_json(response.text or "")
+
         except Exception as exc:
             message = str(exc)
-            MODEL_COOLDOWN[model] = time.time() + (300 if "429" in message else 60)
-            print(f"Gemini request failed ({model}): {message[:160]}")
+            MODEL_COOLDOWN[model] = time.time() + (
+                300 if "429" in message else 60
+            )
+            print(f"Gemini request failed ({model}): {message[:300]}")
+
+    # Keep the failure visible in the terminal; return the existing fallback.
     return fallback_answer(text, order_info)
+
 
 
 def save_message(session_id: str, role: str, content: str) -> int:
